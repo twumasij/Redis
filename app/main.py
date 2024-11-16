@@ -14,7 +14,7 @@ def main():
 
     with conn:
         conn.recv(1024)
-        conn.send(pong.encond())
+        conn.send(pong.encode())
     
 
 
