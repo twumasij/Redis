@@ -23,20 +23,40 @@ def main():
 
 
         
-def connect(conn : socket.socket, response) -> None:
-    with conn:
-        connected: bool = True
-        while connected:
-            data = conn.recv(1024).decode()
-            match data:
-                case "*1\r\n$4\r\nPING\r\n":
-                    response = "+PONG\r\n"
+# def connect(conn : socket.socket, response) -> None:
+#     with conn:
+#         connected: bool = True
+#         while conn:
+#             data = conn.recv(1024).decode()
+#             match data:
+#                 case "*1\r\n$4\r\nPING\r\n":
+#                     response = "+PONG\r\n"
 
-            # print(f"received - {data}")
-            # print(f"responding with - {response}")
-            conn.send(response.encode())
+#             # print(f"received - {data}")
+#             # print(f"responding with - {response}")
+#             conn.send(response.encode())
         
 
+def connect(conn: socket.socket, response: str) -> None:
+    with conn:
+        while True:
+            try:
+                data = conn.recv(1024).decode()
+                if not data:  # Client closed the connection
+                    break
+
+                match data:
+                    case "*1\r\n$4\r\nPING\r\n":
+                        response = "+PONG\r\n"
+                
+                print(f"received - {data.encode()}")
+                print(f"responding with - {response}")
+
+                conn.send(response.encode())
+            except (ConnectionResetError, BrokenPipeError):
+                # Handle disconnection or broken pipe errors
+                print("Client disconnected or connection error")
+                break
 
 if __name__ == "__main__":
     main()
